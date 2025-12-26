@@ -1,38 +1,26 @@
 -- =========================
--- Key System
+-- Elpo Hub with Whitelist & Key System
 -- =========================
-local correctKey = "Elpo-1"
-local playerKey = nil
 
--- Prompt player to enter key
-local success, input = pcall(function()
-    return game:GetService("Players").LocalPlayer:PromptInput("Enter Key:", "")
-end)
-if success then
-    playerKey = input
-else
-    playerKey = nil
-end
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local StarterGui = game:GetService("StarterGui")
 
-if playerKey ~= correctKey then
-    game.Players.LocalPlayer:Kick("Incorrect key!")
-    return
-end
+local player = Players.LocalPlayer
+local backpack = player:WaitForChild("Backpack")
+local char = player.Character or player.CharacterAdded:Wait()
+local humanoid = char:WaitForChild("Humanoid")
+local hrp = char:WaitForChild("HumanoidRootPart")
 
 -- =========================
 -- Whitelist Check
 -- =========================
-local Players = game:GetService("Players")
-local player = Players.LocalPlayer
-
-local Whitelist = {"Elposadi"} -- Removed empty string
+local whitelist = {"Elposadi"} -- Only this player allowed
 
 local function isWhitelisted(name)
     name = name:lower()
-    for _, v in pairs(Whitelist) do
-        if name == v:lower() then
-            return true
-        end
+    for _, v in pairs(whitelist) do
+        if name == v:lower() then return true end
     end
     return false
 end
@@ -43,138 +31,92 @@ if not isWhitelisted(player.Name) and not isWhitelisted(player.DisplayName) then
 end
 
 -- =========================
--- Teleport + Auto Block System
+-- Key System
 -- =========================
-local StarterGui = game:GetService("StarterGui")
-local UserInputService = game:GetService("UserInputService")
+local correctKey = "Elpo-1"
 
-local backpack = player:WaitForChild("Backpack")
-local char = player.Character or player.CharacterAdded:Wait()
-local humanoid = char:WaitForChild("Humanoid")
-local hrp = char:WaitForChild("HumanoidRootPart")
+local keyGui = Instance.new("ScreenGui")
+keyGui.Name = "ElpoKeyGUI"
+keyGui.ResetOnSpawn = false
+keyGui.Parent = player:WaitForChild("PlayerGui")
 
--- GUI Setup
-local ScreenGui = Instance.new("ScreenGui", player.PlayerGui)
-ScreenGui.Name = "ElpoHub"
-ScreenGui.ResetOnSpawn = false
+local keyFrame = Instance.new("Frame")
+keyFrame.Size = UDim2.new(0, 300, 0, 150)
+keyFrame.Position = UDim2.new(0.5, -150, 0.5, -75)
+keyFrame.BackgroundColor3 = Color3.fromRGB(255, 192, 203) -- Pink
+keyFrame.BorderSizePixel = 0
+keyFrame.Parent = keyGui
 
-local Frame = Instance.new("Frame", ScreenGui)
-Frame.Size = UDim2.new(0, 220, 0, 220)
-Frame.Position = UDim2.new(0.5, -110, 0.5, -110)
-Frame.BackgroundColor3 = Color3.fromRGB(2,2,2)
-Frame.Active = true
-Frame.Draggable = true
-Frame.BorderSizePixel = 0
-Instance.new("UICorner", Frame).CornerRadius = UDim.new(0, 15)
+local keyLabel = Instance.new("TextLabel")
+keyLabel.Size = UDim2.new(1, 0, 0, 50)
+keyLabel.Position = UDim2.new(0, 0, 0, 0)
+keyLabel.BackgroundTransparency = 1
+keyLabel.Text = "Enter Key:"
+keyLabel.TextColor3 = Color3.fromRGB(0, 0, 0)
+keyLabel.Font = Enum.Font.SourceSansBold
+keyLabel.TextSize = 24
+keyLabel.Parent = keyFrame
 
-local Stroke = Instance.new("UIStroke", Frame)
-Stroke.Color = Color3.fromRGB(255,255,255)
-Stroke.Thickness = 1
+local keyBox = Instance.new("TextBox")
+keyBox.Size = UDim2.new(0.8, 0, 0, 40)
+keyBox.Position = UDim2.new(0.1, 0, 0, 50)
+keyBox.PlaceholderText = "Enter Key Here"
+keyBox.Text = ""
+keyBox.TextColor3 = Color3.fromRGB(0,0,0)
+keyBox.BackgroundColor3 = Color3.fromRGB(255,255,255)
+keyBox.Parent = keyFrame
 
-local Title = Instance.new("TextLabel", Frame)
-Title.Size = UDim2.new(1, -20, 0, 35)
-Title.Position = UDim2.new(0, 10, 0, 10)
-Title.Text = "Elpo Hub"
-Title.TextColor3 = Color3.new(1,1,1)
-Title.Font = Enum.Font.GothamBold
-Title.TextSize = 18
-Title.BackgroundTransparency = 1
-Title.TextXAlignment = Enum.TextXAlignment.Center
+local submitButton = Instance.new("TextButton")
+submitButton.Size = UDim2.new(0.5, 0, 0, 40)
+submitButton.Position = UDim2.new(0.25, 0, 0, 100)
+submitButton.BackgroundColor3 = Color3.fromRGB(0,0,0)
+submitButton.TextColor3 = Color3.fromRGB(255,192,203)
+submitButton.Text = "Submit"
+submitButton.Font = Enum.Font.SourceSansBold
+submitButton.TextSize = 20
+submitButton.Parent = keyFrame
 
--- Teleport Button
-local TeleportButton = Instance.new("TextButton", Frame)
-TeleportButton.Size = UDim2.new(0, 180, 0, 50)
-TeleportButton.Position = UDim2.new(0, 20, 0, 60)
-TeleportButton.Text = "Teleport"
-TeleportButton.TextColor3 = Color3.fromRGB(0,0,0)
-TeleportButton.Font = Enum.Font.GothamBold
-TeleportButton.TextSize = 16
-TeleportButton.BackgroundColor3 = Color3.fromRGB(255,255,255)
-TeleportButton.BorderSizePixel = 0
-Instance.new("UICorner", TeleportButton).CornerRadius = UDim.new(0, 10)
+-- Key validation
+submitButton.MouseButton1Click:Connect(function()
+    if keyBox.Text == correctKey then
+        StarterGui:SetCore("SendNotification", {Title = "Elpo Hub", Text = "Key Accepted!", Duration = 3})
+        keyGui:Destroy()
+        -- Continue with main GUI
+        spawn(function()
+            -- =========================
+            -- Main Elpo Hub GUI
+            -- =========================
+            local ScreenGui = Instance.new("ScreenGui", player.PlayerGui)
+            ScreenGui.Name = "ElpoHub"
+            ScreenGui.ResetOnSpawn = false
 
--- Keybind Button
-local KeybindButton = Instance.new("TextButton", Frame)
-KeybindButton.Size = UDim2.new(0, 180, 0, 50)
-KeybindButton.Position = UDim2.new(0, 20, 0, 120)
-KeybindButton.Text = "Keybind: [F]"
-KeybindButton.TextColor3 = Color3.fromRGB(0,0,0)
-KeybindButton.Font = Enum.Font.GothamBold
-KeybindButton.TextSize = 16
-KeybindButton.BackgroundColor3 = Color3.fromRGB(255,255,255)
-KeybindButton.BorderSizePixel = 0
-Instance.new("UICorner", KeybindButton).CornerRadius = UDim.new(0, 10)
+            local Frame = Instance.new("Frame", ScreenGui)
+            Frame.Size = UDim2.new(0, 220, 0, 220)
+            Frame.Position = UDim2.new(0.5, -110, 0.5, -110)
+            Frame.BackgroundColor3 = Color3.fromRGB(2,2,2)
+            Frame.Active = true
+            Frame.Draggable = true
+            Frame.BorderSizePixel = 0
+            Instance.new("UICorner", Frame).CornerRadius = UDim.new(0, 15)
 
--- Saved Locations
-local spots = {
-    CFrame.new(-402.18, -6.34, 131.83) * CFrame.Angles(0, math.rad(-20.08), 0),
-    CFrame.new(-416.66, -6.34, -2.05) * CFrame.Angles(0, math.rad(-62.89), 0),
-    CFrame.new(-329.37, -4.68, 18.12) * CFrame.Angles(0, math.rad(-30.53), 0),
-}
+            local Stroke = Instance.new("UIStroke", Frame)
+            Stroke.Color = Color3.fromRGB(255,255,255)
+            Stroke.Thickness = 1
 
-local REQUIRED_TOOL = "Flying Carpet"
-local teleportKey = Enum.KeyCode.F
-local waitingForKey = false
-local lastStealer = nil
+            local Title = Instance.new("TextLabel", Frame)
+            Title.Size = UDim2.new(1, -20, 0, 35)
+            Title.Position = UDim2.new(0, 10, 0, 10)
+            Title.Text = "Elpo Hub"
+            Title.TextColor3 = Color3.new(1,1,1)
+            Title.Font = Enum.Font.GothamBold
+            Title.TextSize = 18
+            Title.BackgroundTransparency = 1
+            Title.TextXAlignment = Enum.TextXAlignment.Center
 
--- Equip Flying Carpet
-local function equipFlyingCarpet()
-    local tool = char:FindFirstChild(REQUIRED_TOOL) or backpack:FindFirstChild(REQUIRED_TOOL)
-    if not tool then
-        warn("Flying Carpet not found!")
-        return false
-    end
-    humanoid:EquipTool(tool)
-    while char:FindFirstChildOfClass("Tool") ~= tool do task.wait() end
-    return true
-end
-
--- Block Function
-local function block(plr)
-    if not plr or plr == player then return end
-    pcall(function()
-        StarterGui:SetCore("PromptBlockPlayer", plr)
-    end)
-end
-
--- Teleport + Auto Block
-local function teleportAll()
-    if not equipFlyingCarpet() then return end
-
-    for _, plr in ipairs(Players:GetPlayers()) do
-        if plr ~= player then
-            lastStealer = plr
-            break
-        end
-    end
-
-    for _, spot in ipairs(spots) do
-        hrp.CFrame = spot
-        task.wait(0.12)
-    end
-
-    if lastStealer then
-        block(lastStealer)
-    end
-end
-
--- GUI Button Connections
-TeleportButton.MouseButton1Click:Connect(teleportAll)
-
--- Keybind Setup
-KeybindButton.MouseButton1Click:Connect(function()
-    KeybindButton.Text = "Press a key..."
-    waitingForKey = true
-end)
-
-UserInputService.InputBegan:Connect(function(input, gameProcessedEvent)
-    if gameProcessedEvent then return end
-
-    if waitingForKey and input.UserInputType == Enum.UserInputType.Keyboard then
-        teleportKey = input.KeyCode
-        KeybindButton.Text = "Keybind: [" .. teleportKey.Name .. "]"
-        waitingForKey = false
-    elseif input.UserInputType == Enum.UserInputType.Keyboard and input.KeyCode == teleportKey then
-        teleportAll()
-    end
-end)
+            -- Teleport Button
+            local TeleportButton = Instance.new("TextButton", Frame)
+            TeleportButton.Size = UDim2.new(0, 180, 0, 50)
+            TeleportButton.Position = UDim2.new(0, 20, 0, 60)
+            TeleportButton.Text = "Teleport"
+            TeleportButton.TextColor3 = Color3.fromRGB(0,0,0)
+            TeleportButton.Font =
