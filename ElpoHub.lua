@@ -1,101 +1,89 @@
 -- =========================
--- Elpo Hub – Key & Whitelist
+-- Elpo Hub – Key & Whitelist (FIXED)
 -- =========================
 
 local Players = game:GetService("Players")
-local StarterGui = game:GetService("StarterGui")
 local UserInputService = game:GetService("UserInputService")
 local player = Players.LocalPlayer
-local backpack = player:WaitForChild("Backpack")
 
 -- =========================
 -- Whitelist
 -- =========================
 local Whitelist = {
-    "Elposadi"
+    ["Elposadi"] = true
 }
 
-local function isWhitelisted(name)
-    name = name:lower()
-    for _, v in ipairs(Whitelist) do
-        if name == v:lower() then
-            return true
+local isWhitelisted =
+    Whitelist[player.Name] or
+    Whitelist[player.DisplayName]
+
+-- =========================
+-- Key System (ONLY for non-whitelisted)
+-- =========================
+local CORRECT_KEY = "Elpo-hub"
+
+if not isWhitelisted then
+    -- Simple key input GUI
+    local keyGui = Instance.new("ScreenGui")
+    keyGui.Name = "ElpoKeyGui"
+    keyGui.ResetOnSpawn = false
+    keyGui.Parent = player:WaitForChild("PlayerGui")
+
+    local frame = Instance.new("Frame", keyGui)
+    frame.Size = UDim2.new(0, 260, 0, 140)
+    frame.Position = UDim2.new(0.5, -130, 0.5, -70)
+    frame.BackgroundColor3 = Color3.fromRGB(15,15,15)
+    frame.BorderSizePixel = 0
+    Instance.new("UICorner", frame).CornerRadius = UDim.new(0,12)
+
+    local title = Instance.new("TextLabel", frame)
+    title.Size = UDim2.new(1,0,0,35)
+    title.Text = "Enter Elpo Hub Key"
+    title.TextColor3 = Color3.fromRGB(255,255,0)
+    title.Font = Enum.Font.GothamBold
+    title.TextSize = 16
+    title.BackgroundTransparency = 1
+
+    local box = Instance.new("TextBox", frame)
+    box.Position = UDim2.new(0.1,0,0.35,0)
+    box.Size = UDim2.new(0.8,0,0,35)
+    box.PlaceholderText = "Key here..."
+    box.Text = ""
+    box.TextColor3 = Color3.new(1,1,1)
+    box.BackgroundColor3 = Color3.fromRGB(30,30,30)
+    box.ClearTextOnFocus = false
+    Instance.new("UICorner", box).CornerRadius = UDim.new(0,8)
+
+    local submit = Instance.new("TextButton", frame)
+    submit.Position = UDim2.new(0.25,0,0.7,0)
+    submit.Size = UDim2.new(0.5,0,0,30)
+    submit.Text = "Submit"
+    submit.Font = Enum.Font.GothamBold
+    submit.TextSize = 14
+    submit.TextColor3 = Color3.fromRGB(0,0,0)
+    submit.BackgroundColor3 = Color3.fromRGB(255,255,0)
+    Instance.new("UICorner", submit).CornerRadius = UDim.new(0,8)
+
+    submit.MouseButton1Click:Connect(function()
+        if box.Text == CORRECT_KEY then
+            keyGui:Destroy()
+        else
+            player:Kick("Wrong key")
         end
-    end
-    return false
-end
-
-if not isWhitelisted(player.Name) and not isWhitelisted(player.DisplayName) then
-    player:Kick("Not whitelisted")
-    return
-end
-
--- =========================
--- Key System
--- =========================
-local correctKey = "Elpo-hub"  -- updated key
-
-local function requestKey()
-    local success, input = pcall(function()
-        return player:PromptInput("Enter Elpo Hub Key:", "")
     end)
-    if not success or input ~= correctKey then
-        player:Kick("Wrong key!")
-        return false
-    end
-    return true
+
+    -- STOP SCRIPT until key is correct
+    repeat task.wait() until not keyGui.Parent
 end
 
-if not requestKey() then return end
-
 -- =========================
--- Character Refs
--- =========================
-local function getChar()
-    local char = player.Character or player.CharacterAdded:Wait()
-    return char,
-           char:WaitForChild("Humanoid"),
-           char:WaitForChild("HumanoidRootPart")
-end
-
-local char, humanoid, hrp = getChar()
-player.CharacterAdded:Connect(function()
-    char, humanoid, hrp = getChar()
-end)
-
--- =========================
--- GUI Setup
+-- HUB GUI (Runs for ALL allowed users)
 -- =========================
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "ElpoHub"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.Parent = player:WaitForChild("PlayerGui")
 
-local Frame = Instance.new("Frame")
+local Frame = Instance.new("Frame", ScreenGui)
 Frame.Size = UDim2.new(0, 220, 0, 240)
-Frame.Position = UDim2.new(0.5, -110, 0.5, -120)
-Frame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
-Frame.BorderSizePixel = 0
-Frame.Parent = ScreenGui
-Instance.new("UICorner", Frame).CornerRadius = UDim.new(0, 14)
-local Stroke = Instance.new("UIStroke", Frame)
-Stroke.Color = Color3.fromRGB(255, 255, 0)
-Stroke.Thickness = 1.5
-
--- Title
-local Title = Instance.new("TextLabel", Frame)
-Title.Size = UDim2.new(1, -20, 0, 35)
-Title.Position = UDim2.new(0, 10, 0, 8)
-Title.Text = "Elpo Hub"
-Title.TextColor3 = Color3.fromRGB(255, 255, 0)
-Title.Font = Enum.Font.GothamBold
-Title.TextSize = 18
-Title.BackgroundTransparency = 1
-Title.TextXAlignment = Enum.TextXAlignment.Center
-
--- Watermark
-local Watermark = Instance.new("TextLabel", ScreenGui)
-Watermark.Position = UDim2.new(0, 10, 0, 10)
-Watermark.Size = UDim2.new(0, 200, 0, 30)
-Watermark.Text = "Elpo Hub v1.0"
-Watermark.TextColor3 = Color3
+Frame
