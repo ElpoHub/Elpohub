@@ -56,4 +56,18 @@ screenGui.ResetOnSpawn = false
 
 local frame = Instance.new("Frame")
 frame.Size = UDim2.new(0, 400, 0, 300)
-frame.Position = UDim2.new(0.5, -200, 0
+frame.Position = UDim2.new(0.5, -200, 0.5, -150)
+frame.AnchorPoint = Vector2.new(0.5, 0.5)
+frame.BackgroundColor3 = Color3.fromRGB(255, 105, 180) -- Pink color
+frame.BorderSizePixel = 0
+frame.Parent = screenGui
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, 0, 0, 50)
+title.Position = UDim2.new(0, 0, 0, 0)
+title.BackgroundTransparency = 1
+title.Text = "Welcome to Elpo Hub!"
+title.Font = Enum.Font.SourceSansBold
+title.TextSize = 24
+title.TextColor3 = Color3.fromRGB(255, 255, 255)
+title.Parent = frame
