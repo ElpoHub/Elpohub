@@ -1,34 +1,44 @@
 -- =========================
--- Whitelist Check
+-- ELPO HUB
+-- =========================
+warn("ELPO HUB STARTED")
+
+-- =========================
+-- Services
 -- =========================
 local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
 local player = Players.LocalPlayer
 
+-- =========================
+-- Whitelist
+-- =========================
 local Whitelist = {
-    "Elposadi",
+    "Elposadi"
 }
 
-local function isWhitelisted(name)
-    name = name:lower()
-    for _, v in pairs(Whitelist) do
-        if name == v:lower() then
+local function isWhitelisted(username)
+    for _, name in ipairs(Whitelist) do
+        if username:lower() == name:lower() then
             return true
         end
     end
     return false
 end
 
-if not isWhitelisted(player.Name) and not isWhitelisted(player.DisplayName) then
-    player:Kick("Not whitelisted")
+if not isWhitelisted(player.Name) then
+    player:Kick("You are not whitelisted")
     return
 end
 
 -- =========================
--- Teleport + Auto Block System
+-- Character
 -- =========================
-local StarterGui = game:GetService("StarterGui")
-local UserInputService = game:GetService("UserInputService")
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoid = character:WaitForChild("Humanoid")
+local root = character:WaitForChild("HumanoidRootPart")
 
-local backpack = player:WaitForChild("Backpack")
-local char = player.Character or player.CharacterAdded:Wait()
-local humanoid = char:Wait
+-- =========================
+-- GUI
+-- =========================
+local gui = Instance.new("Screen
