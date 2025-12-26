@@ -1,15 +1,11 @@
 -- =========================
--- Elpo Hub with Whitelist & Key System
+-- Whitelist Check
 -- =========================
-
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 
--- =========================
--- Whitelist Check
--- =========================
 local Whitelist = {
-    "Elposadi",  -- add more names if needed
+    "Elposadi",
 }
 
 local function isWhitelisted(name)
@@ -22,29 +18,17 @@ local function isWhitelisted(name)
     return false
 end
 
--- Kick if not whitelisted
-if not isWhitelisted(player.Name) then
-    player:Kick("You are not whitelisted!")
+if not isWhitelisted(player.Name) and not isWhitelisted(player.DisplayName) then
+    player:Kick("Not whitelisted")
     return
 end
 
 -- =========================
--- Key System
+-- Teleport + Auto Block System
 -- =========================
-local correctKey = "Elpo-1"
+local StarterGui = game:GetService("StarterGui")
+local UserInputService = game:GetService("UserInputService")
 
-local success, playerKey = pcall(function()
-    return player:PromptInput("Enter Key:")
-end)
-
--- Validate key
-if not success or not playerKey or playerKey:lower() ~= correctKey:lower() then
-    player:Kick("Wrong key entered!")
-    return
-end
-
--- =========================
--- GUI or main script code here
--- =========================
-print("Welcome! Key accepted and whitelisted.")
--- Place your GUI code below this line
+local backpack = player:WaitForChild("Backpack")
+local char = player.Character or player.CharacterAdded:Wait()
+local humanoid = char:Wait
