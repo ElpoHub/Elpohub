@@ -1,73 +1,31 @@
--- =========================
--- Elpo Hub with Whitelist & Key System
--- =========================
+-- Main Elpo Hub GUI
+            local mainGui = Instance.new("ScreenGui")
+            mainGui.Name = "ElpoHubGUI"
+            mainGui.Parent = playerGui
+            mainGui.ResetOnSpawn = false
 
-local Players = game:GetService("Players")
-local player = Players.LocalPlayer
-local playerGui = player:WaitForChild("PlayerGui")
+            local mainFrame = Instance.new("Frame")
+            mainFrame.Size = UDim2.new(0, 400, 0, 300)
+            mainFrame.Position = UDim2.new(0.5, -200, 0.5, -150)
+            mainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+            mainFrame.BackgroundColor3 = Color3.fromRGB(255, 105, 180)
+            mainFrame.BorderSizePixel = 0
+            mainFrame.Parent = mainGui
 
--- =========================
--- Whitelist
--- =========================
-local whitelist = {
-    "Elposadi"
-}
+            local mainTitle = Instance.new("TextLabel")
+            mainTitle.Size = UDim2.new(1, 0, 0, 50)
+            mainTitle.Position = UDim2.new(0, 0, 0, 0)
+            mainTitle.BackgroundTransparency = 1
+            mainTitle.Text = "Welcome to Elpo Hub!"
+            mainTitle.Font = Enum.Font.SourceSansBold
+            mainTitle.TextSize = 24
+            mainTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+            mainTitle.Parent = mainFrame
 
-local function isWhitelisted(name)
-    name = name:lower()
-    for _, v in pairs(whitelist) do
-        if name == v:lower() then
-            return true
-        end
-    end
-    return false
-end
+            -- You can add more buttons and features here for your hub
+        end)
 
-if not isWhitelisted(player.Name) then
-    player:Kick("You are not whitelisted for Elpo Hub.")
-    return
-end
-
--- =========================
--- Key System
--- =========================
-local correctKey = "ELPO-1"
-
-local function promptKey()
-    local input = player:PromptInput("Enter Elpo Hub Key", "")
-    if input ~= correctKey then
+    else
         player:Kick("Wrong key entered.")
-        return false
     end
-    return true
-end
-
-if not promptKey() then
-    return
-end
-
--- =========================
--- GUI Creation
--- =========================
-local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "ElpoHubGUI"
-screenGui.Parent = playerGui
-screenGui.ResetOnSpawn = false
-
-local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0, 400, 0, 300)
-frame.Position = UDim2.new(0.5, -200, 0.5, -150)
-frame.AnchorPoint = Vector2.new(0.5, 0.5)
-frame.BackgroundColor3 = Color3.fromRGB(255, 105, 180) -- Pink color
-frame.BorderSizePixel = 0
-frame.Parent = screenGui
-
-local title = Instance.new("TextLabel")
-title.Size = UDim2.new(1, 0, 0, 50)
-title.Position = UDim2.new(0, 0, 0, 0)
-title.BackgroundTransparency = 1
-title.Text = "Welcome to Elpo Hub!"
-title.Font = Enum.Font.SourceSansBold
-title.TextSize = 24
-title.TextColor3 = Color3.fromRGB(255, 255, 255)
-title.Parent = frame
+end)
